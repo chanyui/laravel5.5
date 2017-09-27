@@ -1,0 +1,9 @@
+一、larave5.4以后出现 Migrate error:Specified Key Was Too Long Error
+	注：如果是从Laravel 5.3升级到Laravel 5.4，不需要对字符编码做切换。
+	方法：
+	1.升级MySql版本到5.5.3以上。 2.手动配置迁移命令migrate生成的默认字符串长度，在AppServiceProvider中调用Schema::defaultStringLength方法来实现配置： 添加（Schema::defaultStringLength(191);）文件位置：/Users/yc/Documents/www/github_project/laravel/app/Providers/AppServiceProvider.php
+ 
+ 二、如果目录下没有 .env 文件，需要拷贝一份 .env.example
+
+ 三、访问出现错误 RuntimeException No application encryption key has been specified.
+	则需在项目目录下运行:php artisan key:generate

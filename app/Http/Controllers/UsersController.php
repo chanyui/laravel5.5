@@ -10,6 +10,37 @@ use Auth;
 class UsersController extends Controller
 {
     /**
+     * 中间件过滤未登录用户的操作权限
+     * UsersController constructor.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth', [
+            'except' => ['show', 'create', 'store', 'index']
+        ]);
+
+        //只让未登录用户访问注册页面
+        $this->middleware('guest', [
+            'only' => ['create']
+        ]);
+    }
+
+    /**
+     * 列出所有用户
+     * +-----------------------------------------------------------
+     * @functionName : index
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function index()
+    {
+        $users = User::paginate(15);
+        return view('users.index', compact('users'));
+    }
+
+    /**
      * 注册页面
      * +-----------------------------------------------------------
      * @functionName : create
@@ -28,7 +59,7 @@ class UsersController extends Controller
      * +-----------------------------------------------------------
      * @functionName : show
      * +-----------------------------------------------------------
-     * @param User $user 用户id
+     * @param User $user 用户信息(隐性路由模型绑定)
      * +-----------------------------------------------------------
      * @author yc
      * +-----------------------------------------------------------
@@ -40,7 +71,7 @@ class UsersController extends Controller
     }
 
     /**
-     * 用户注册
+     * 用户注册操作
      * +-----------------------------------------------------------
      * @functionName : store
      * +-----------------------------------------------------------
@@ -67,5 +98,73 @@ class UsersController extends Controller
 
         session()->flash('success', '欢迎，您将在这里开启一段新的旅程！');
         return redirect()->route('users.show', [$user]);
+    }
+
+    /**
+     * 编辑用户展示页面s
+     * +-----------------------------------------------------------
+     * @functionName : edit
+     * +-----------------------------------------------------------
+     * @param User $user 用户信息(隐性路由模型绑定)
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function edit(User $user)
+    {
+        $this->authorize('update', $user);
+        return view('users.edit', compact('user'));
+    }
+
+    /**
+     * 更新用户资料操作
+     * +-----------------------------------------------------------
+     * @functionName : update
+     * +-----------------------------------------------------------
+     * @param User $user 用户信息(隐性路由模型绑定)
+     * @param Request $request 提交过来的信息
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(User $user, Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required|max:50',
+            'password' => 'nullable|confirmed|min:6'
+        ]);
+
+        $this->authorize('update', $user);
+
+        $data = [];
+        $data['name'] = $request->name;
+        if ($request->password) {
+            $data['password'] = $request->password;
+        }
+        $user->update($data);
+
+        session()->flash('success', '个人资料更新成功！');
+        return redirect()->route('users.show', $user->id);
+    }
+
+    /**
+     * 删除用户操作(权限在UserPolicy.php控制)
+     * +-----------------------------------------------------------
+     * @functionName : destroy
+     * +-----------------------------------------------------------
+     * @param User $user
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(User $user)
+    {
+        $this->authorize('destroy', $user);
+        $user->delete();
+        session()->flash('success', '成功删除用户！');
+        return back();
     }
 }

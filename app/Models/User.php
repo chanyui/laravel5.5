@@ -57,8 +57,36 @@ class User extends Authenticatable
         return "http://www.gravatar.com/avatar/$hash?s=$size";
     }
 
+    /**
+     * 一个用户拥有多条微博
+     * +-----------------------------------------------------------
+     * @functionName : statuses
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function statuses()
+    {
+        return $this->hasMany(Status::class);
+    }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPassword($token));
+    }
+
+    /**
+     * 当前用户发布的所有微博
+     * +-----------------------------------------------------------
+     * @functionName : feed
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return object
+     */
+    public function feed()
+    {
+        return $this->statuses()->orderBy('created_at', 'desc');
     }
 }

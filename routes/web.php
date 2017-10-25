@@ -35,3 +35,13 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('passw
 
 //微博RESTful架构
 Route::resource('statuses', 'StatusesController', ['only' => ['store', 'destroy']]);
+
+//微博关注和粉丝
+//显示用户的关注人列表页
+Route::get('/users/{user}/followings', 'UsersController@followings')->name('users.followings');
+//显示用户的粉丝列表页
+Route::get('/users/{user}/followers', 'UsersController@followers')->name('users.followers');
+//关注操作
+Route::post('/users/followers/{user}', 'FollowersController@store')->name('followers.store');
+//取消关注操作
+Route::delete('/users/followers/{user}', 'FollowersController@destroy')->name('followers.destroy');

@@ -6,6 +6,7 @@ use function foo\func;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Notifications\ResetPassword;
+use Auth;
 
 class User extends Authenticatable
 {
@@ -87,6 +88,90 @@ class User extends Authenticatable
      */
     public function feed()
     {
-        return $this->statuses()->orderBy('created_at', 'desc');
+        $user_ids = Auth::user()->followings->pluck('id')->toArray();
+        array_push($user_ids, Auth::user()->id);
+
+        return Status::whereIn('user_id', $user_ids)->with('user')->orderBy('created_at', 'desc');
+        /*return $this->statuses()->orderBy('created_at', 'desc');*/
+    }
+
+    /**
+     * 获取粉丝关系列表
+     * +-----------------------------------------------------------
+     * @functionName : followers
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id');
+    }
+
+    /**
+     * 获取用户关注人列表
+     * +-----------------------------------------------------------
+     * @functionName : followings
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function followings()
+    {
+        return $this->belongsToMany(User::Class, 'followers', 'follower_id', 'user_id');
+    }
+
+    /**
+     * 用户关注操作
+     * +-----------------------------------------------------------
+     * @functionName : follow
+     * +-----------------------------------------------------------
+     * @param array $user_ids 被关注的用户id
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     */
+    public function follow($user_ids)
+    {
+        if (!is_array($user_ids)) {
+            $user_ids = compact('user_ids');
+        }
+        $this->followings()->sync($user_ids, false);
+    }
+
+    /**
+     * 取消关注的操作
+     * +-----------------------------------------------------------
+     * @functionName : unfollow
+     * +-----------------------------------------------------------
+     * @param array $user_ids 被关注的用户的id
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     */
+    public function unfollow($user_ids)
+    {
+        if (!is_array($user_ids)) {
+            $user_ids = compact('user_ids');
+        }
+        $this->followings()->detach($user_ids);
+    }
+
+    /**
+     * 判断当前登录的用户 A 是否关注了用户 B
+     * +-----------------------------------------------------------
+     * @functionName : isFollowing
+     * +-----------------------------------------------------------
+     * @param int $user_id 用户B的id
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return mixed
+     */
+    public function isFollowing($user_id)
+    {
+        return $this->followings->contains($user_id);
     }
 }

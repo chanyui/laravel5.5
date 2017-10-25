@@ -198,6 +198,41 @@ class UsersController extends Controller
     }
 
     /**
+     * 显示用户的关注人列表
+     * +-----------------------------------------------------------
+     * @functionName : followings
+     * +-----------------------------------------------------------
+     * @param User $user 当前用户id
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     */
+    public function followings(User $user)
+    {
+        $users = $user->followings()->paginate(15);
+        $title = '关注的人';
+        return view('users.show_follow', compact('users', 'title'));
+    }
+
+    /**
+     * 显示用户的粉丝列表
+     * +-----------------------------------------------------------
+     * @functionName : followers
+     * +-----------------------------------------------------------
+     * @param User $user 当前用户id
+     * +-----------------------------------------------------------
+     * @author yc
+     * +-----------------------------------------------------------
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function followers(User $user)
+    {
+        $users = $user->followers()->paginate(30);
+        $title = '粉丝';
+        return view('users.show_follow', compact('users', 'title'));
+    }
+
+    /**
      * 发送邮件功能
      * +-----------------------------------------------------------
      * @functionName : sendEmailConfirmationTo

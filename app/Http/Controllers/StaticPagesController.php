@@ -21,7 +21,7 @@ class StaticPagesController extends Controller
         //当前用户的所有微博
         $feed_items = [];
         if (Auth::check()) {
-            $feed_items = Auth::user()->feed()->paginate(15);
+            $feed_items = Auth::user()->feed()->paginate(10);
         }
 
         return view('static_pages/home', compact('feed_items'));

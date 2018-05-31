@@ -225,7 +225,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
+        'ToolFacade' => \App\Service\ToolFacade::class, // 注册工具类门面
     ],
 
 ];

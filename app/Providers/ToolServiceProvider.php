@@ -30,8 +30,8 @@ class ToolServiceProvider extends ServiceProvider
         });
 
         //使用bind绑定实例到接口以便依赖注入
-        /*$this->app->bind('App\Services\ToolInterface', function () {
+        $this->app->bind('App\Service\ToolInterface', function () {
             return new Tool();
-        });*/
+        });
     }
 }

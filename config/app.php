@@ -177,6 +177,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        //注册服务提供者
+        App\Providers\ToolServiceProvider::class,
+
     ],
 
     /*

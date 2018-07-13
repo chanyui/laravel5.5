@@ -45,3 +45,59 @@ Route::get('/users/{user}/followers', 'UsersController@followers')->name('users.
 Route::post('/users/followers/{user}', 'FollowersController@store')->name('followers.store');
 //取消关注操作
 Route::delete('/users/followers/{user}', 'FollowersController@destroy')->name('followers.destroy');
+
+Route::resource('tool', 'TestController');
+
+// test route
+Route::get('/hello/laravel/academy/{id}', ['as' => 'academy', function ($id) {
+    return 'Hello LaravelAcademy , id eq ' . $id . '！';
+}]);
+
+Route::group(['as' => 'admin::'], function () {
+    Route::get('/testDashboard', ['as' => 'dashboard', function () {
+        return redirect()->route('academy', ['id' => '1863']);  //地址跳转
+    }]);
+});
+
+Route::get('/test', function () {
+    return redirect()->route('admin::dashboard');  //地址跳转
+});
+
+Route::group(['middleware' => 'adult'], function () {
+    Route::get('/write/academy', function () {
+        //使用adult中间件
+    });
+    Route::get('/update/academy', function () {
+        //使用adult中间件
+    });
+});
+
+Route::get('/age/refuse', ['as' => 'refuse', function () {
+    return "未成年人禁止入内！";
+}]);
+
+Route::group(['prefix' => 'laravelacademy'], function () {
+    Route::get('write', function () {
+        return "Write LaravelAcademy";
+    });
+    Route::get('update', function () {
+        return 'Update LaravelAcademy';
+     });
+});
+
+//设置cookie
+Route::get('cookie/add', function () {
+    return response('欢迎来到 Laravel 学院')->cookie('cookieName', '学院', 60);
+});
+//获取cookie
+Route::get('cookie/get', function (\Illuminate\Http\Request $request) {
+    $cookie = $request->cookie('cookieName');
+    dd($cookie);
+});
+//删除cookie
+Route::get('cookie/del', function () {
+    $cookie = \Illuminate\Support\Facades\Cookie::forget('cookieName');
+    // 这里我们返回的时候要使用 withCookie ！
+    //return response('删除cookie')->withCookie($cookie);
+    \Illuminate\Support\Facades\Cookie::queue($cookie);
+});
